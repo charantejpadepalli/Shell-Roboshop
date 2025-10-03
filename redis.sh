@@ -28,23 +28,23 @@ VALIDATE(){
     fi
 }
 
-cp mongo.repo /etc/yum.repos.d/mongo.repo
-VALIDATE $? "Adding Mongo repo"
+dnf module disable redis -y &>>$LOG_FILE
+VALIDATE $? "Disabling Redis"
 
-dnf install mongodb-org -y &>>$LOG_FILE
-VALIDATE $? "Installing Mongodb"
+dnf module enable redis:7 -y &>>$LOG_FILE
+VALIDATE $? "Enabling Redis:7"
 
-systemctl enable mongod &>>$LOG_FILE
-VALIDATE $? "Enable mongoDB"
+dnf install redis -y &>>$LOG_FILE
+VALIDATE $? "Installing Redis"
 
-systemctl start mongod &>>$LOG_FILE
-VALIDATE $? "Start mongoDB"
+sed -i -e 's/127.0.0.1/0.0.0.0' -e '/protected-mode/ c protected-mode no' /etc/redis/redis.conf &>>$LOG_FILE
+VALIDATE $? "Allowing remote connection to Redis"
 
-sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mongo.conf
-VALIDATE $? "Allowing remote connections to MongoDB"
+systemctl enable redis &>>$LOG_FILE
+VALIDATE $? "Enabling Redis"
 
-systemctl restart mongod
-VALIDATE $? "Restarted MongoDB"
+systemctl start redis &>>$LOG_FILE
+VALIDATE $? "Starting Redis"
 
 END_TIME=$(date +%s)
 TOTAL_TIME=$(( $END_TIME - $START_TIME ))

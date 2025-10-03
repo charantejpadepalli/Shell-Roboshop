@@ -28,23 +28,17 @@ VALIDATE(){
     fi
 }
 
-cp mongo.repo /etc/yum.repos.d/mongo.repo
-VALIDATE $? "Adding Mongo repo"
+dnf install mysql-server -y &>>$LOG_FILE
+VALIDATE $? "Installing Mysql server"
 
-dnf install mongodb-org -y &>>$LOG_FILE
-VALIDATE $? "Installing Mongodb"
+systemctl enable mysqld &>>$LOG_FILE
+VALIDATE $? "Enabling Mysql"
 
-systemctl enable mongod &>>$LOG_FILE
-VALIDATE $? "Enable mongoDB"
+systemctl start mysqld &>>$LOG_FILE
+VALIDATE $? "Starting Mysql"
 
-systemctl start mongod &>>$LOG_FILE
-VALIDATE $? "Start mongoDB"
-
-sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mongo.conf
-VALIDATE $? "Allowing remote connections to MongoDB"
-
-systemctl restart mongod
-VALIDATE $? "Restarted MongoDB"
+mysql_secure_installation --set-root-pass RoboShop@1 &>>$LOG_FILE
+VALIDATE $? "Setting Root Password"
 
 END_TIME=$(date +%s)
 TOTAL_TIME=$(( $END_TIME - $START_TIME ))

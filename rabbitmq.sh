@@ -9,6 +9,7 @@ N="e\[0m"
 LOGS_FOLDER="/var/log/shell-roboshop"
 SCRIPT_NAME=$( echo $0 | cut -d "." -f1 )
 LOG_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log"
+SCRIPT_DIR=$PWD
 START_TIME=$(date +%s)
 
 mkdir -p $LOGS_FOLDER
@@ -28,23 +29,22 @@ VALIDATE(){
     fi
 }
 
-cp mongo.repo /etc/yum.repos.d/mongo.repo
-VALIDATE $? "Adding Mongo repo"
+cp $SCRIPT_DIR/rabbitmq.repo /etc/yum.repos.d/rabbitmq.repo
 
-dnf install mongodb-org -y &>>$LOG_FILE
-VALIDATE $? "Installing Mongodb"
+dnf install rabbitmq-server -y &>>$LOG_FILE
+VALIDATE $? "Installing rabbitmq server"
 
-systemctl enable mongod &>>$LOG_FILE
-VALIDATE $? "Enable mongoDB"
+systemctl enable rabbitmq-server &>>$LOG_FILE
+VALIDATE $? "Enabling rabbitmq server"
 
-systemctl start mongod &>>$LOG_FILE
-VALIDATE $? "Start mongoDB"
+systemctl start rabbitmq-server &>>$LOG_FILE
+VALIDATE $? "Starting rabbitmq server"
 
-sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mongo.conf
-VALIDATE $? "Allowing remote connections to MongoDB"
+rabbitmqctl add_user roboshop roboshop123 &>>$LOG_FILE
+VALIDATE $? "Adding System User"
 
-systemctl restart mongod
-VALIDATE $? "Restarted MongoDB"
+rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*" &>>$LOG_FILE
+VALIDATE $? "Setting Root Permissions"
 
 END_TIME=$(date +%s)
 TOTAL_TIME=$(( $END_TIME - $START_TIME ))
