@@ -55,7 +55,7 @@ VALIDATE $? "Removing Existing Code"
 unzip /tmp/payment.zip &>>$LOG_FILE
 VALIDATE $? "Unzipping Code"
 
-pip3 install -r requirements.txt
+pip3 install -r requirements.txt &>>$LOG_FILE
 VALIDATE $? "Installing Dependencies"
 
 cp $SCRIPT_DIR/payment.service /etc/systemd/system/payment.service &>>$LOG_FILE
