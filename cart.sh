@@ -75,9 +75,6 @@ VALIDATE $? "Enable cart"
 systemctl start cart &>>$LOG_FILE
 VALIDATE $? "Start cart"
 
-cp mongo.repo /etc/yum.repos.d/mongo.repo &>>$LOG_FILE
-VALIDATE $? "Copy MongoDB repo"
-
 systemctl restart cart
 VALIDATE $? "Restarting cart service"
 
