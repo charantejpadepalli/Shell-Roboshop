@@ -20,7 +20,7 @@ do
 
     echo "$instance: $IP"
 
-done
+
 
 aws route53 change-resource-record-sets --hosted-zone-id $ZONE_ID --change-batch '{
     "Comment": "Updating record set",
@@ -36,6 +36,8 @@ aws route53 change-resource-record-sets --hosted-zone-id $ZONE_ID --change-batch
             }
         }]
     }'
+
+done
 
 #create new repo in git shell=roboshop
 #existing folder to repo --> git init
